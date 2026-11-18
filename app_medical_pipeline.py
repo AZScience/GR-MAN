@@ -758,7 +758,11 @@ with tabs[2]:
     # Nạp dữ liệu tương ứng
     if "eICU" in dataset_source:
         import unified_data_loader
-        active_data = unified_data_loader.load_eicu_cohort()
+        try:
+            active_data = unified_data_loader.load_eicu_cohort()
+        except Exception as e:
+            st.warning(f"⚠️ Không tải được dữ liệu eICU ({e}), hệ thống tự động chuyển sang MIMIC-IV.")
+            active_data = data
     else:
         active_data = data
 

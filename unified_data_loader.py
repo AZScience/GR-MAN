@@ -8,8 +8,17 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def load_eicu_cohort(data_dir=os.path.join(WORKSPACE_DIR, "data", "eicu_demo")):
-    print("[*] Đang tải đoàn hệ lớn eICU (2,520 bệnh nhân ICU đa trung tâm)...")
-    pat = pd.read_csv(os.path.join(data_dir, "patient.csv.gz"), compression='gzip')
+    processed_pt_path = os.path.join(WORKSPACE_DIR, "eicu_cohort_processed.pt")
+    if os.path.exists(processed_pt_path):
+        print(f"[*] Nạp trực tiếp đoàn hệ eICU đã xử lý từ checkpoint {processed_pt_path}...")
+        return torch.load(processed_pt_path, map_location=torch.device('cpu'), weights_only=False)
+
+    print("[*] Đang tải đoàn hệ lớn eICU từ tệp tin CSV thô (2,520 bệnh nhân ICU đa trung tâm)...")
+    pat_file = os.path.join(data_dir, "patient.csv.gz")
+    if not os.path.exists(pat_file):
+        raise FileNotFoundError(f"Không tìm thấy dữ liệu eICU tại: {data_dir} hoặc {processed_pt_path}")
+
+    pat = pd.read_csv(pat_file, compression='gzip')
     diag = pd.read_csv(os.path.join(data_dir, "diagnosis.csv.gz"), compression='gzip')
     labs = pd.read_csv(os.path.join(data_dir, "lab.csv.gz"), compression='gzip')
 
